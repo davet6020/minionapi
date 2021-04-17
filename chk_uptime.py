@@ -38,8 +38,11 @@ def uptime_nt():
 
 
 def uptime_posix():
+  uptime = {}
+
   with open('/proc/uptime', 'r') as f:
     uptime_seconds = float(f.readline().split()[0])
-    retval = secs(uptime_seconds)
- 
+    uptime['uptime'] = secs(uptime_seconds)
+    retval = uptime
+
   return retval

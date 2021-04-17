@@ -1,26 +1,5 @@
 import os
-
-def secs_1(unixtime):
-    seconds = unixtime % (24 * 3600)
-    hour = seconds // 3600
-    seconds %= 3600
-    minutes = seconds // 60
-    seconds %= 60
-      
-    return "%d:%02d:%02d" % (hour, minutes, seconds)
-
-
-def secs(unixtime):
-    seconds = unixtime % (24 * 3600)
-    day = seconds // 86400
-    hour = seconds // 3600
-    seconds %= 3600
-    minutes = seconds // 60
-    seconds %= 60
-    retval = "%d:%d:%02d:%02d" % (day, hour, minutes, seconds)
-    
-    return retval
-
+import socket
 
 def hw_nt():
   # import wmi
@@ -34,12 +13,24 @@ def hw_nt():
 
   #   retval = secs(c)
 
-  retval = "check nt hardware"
+  retval = "cpuhardware for NT not implemented yet"
 
   return retval
 
 
 def hw_posix():
-  retval = "check posix hardware"
+  cpuinfo = {}
+
+  with open('/proc/cpuinfo', 'r') as f:
+    for line in f:
+      key, val = line.partition(':')[::2]
+      
+      if key.strip() == 'model name':
+        cpuinfo[key.strip()] = val.strip()
+
+      if key.strip() == 'cpu cores':
+        cpuinfo[key.strip()] = val.strip()
+  
+  retval = cpuinfo
  
   return retval

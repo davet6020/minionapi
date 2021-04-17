@@ -32,24 +32,45 @@ class APIServer(BaseHTTPRequestHandler):
 # Whatever is the main request in the GET header, 
 #   this looks for a matching value and if found, 
 #   runs the request asked for
-def chkRequest(path, retval=''):
+def chkRequest(path, chkval=''):
 
 	# Get system uptime
   if(path.endswith('uptime')):
     if os.name == 'nt':
       print(chk_uptime.uptime_nt())
     else:
-      retval = chk_uptime.uptime_posix()
+      chkval = chk_uptime.uptime_posix()
 
   # Get cpu hardware information
   if(path.endswith('cpuhardware')):
     if os.name == 'nt':
       print(chk_cpuhardware.hw_nt())
     else:
-      retval = chk_cpuhardware.hw_posix()
+      chkval = chk_cpuhardware.hw_posix()
+
+  # chkval and what is returned from hostinfo() are both dictionaries
+  #   In python >= 3.9.0 join dictionaries together with a |
+  #   In python >= 3.5.0 join dictionaries together with z = {**x, **y}
+  # retval = chkval | hostinfo()
+  retval = {**chkval, **hostinfo()}
 
   return retval
 
+
+# We want this for every agent.  This data will
+#   be returned to the Controller so the database
+#   will know what host this data belongs to
+def hostinfo():
+  hostinfo = {}
+
+  hostname = socket.gethostname()
+  ip = socket.gethostbyname(hostname)
+
+  hostinfo['hostname'] = hostname
+  hostinfo['ip'] = ip
+
+  return hostinfo
+  
 
 def agent(server_class=HTTPServer, handler_class=APIServer, port=999):
   # Get the IP address of this host
