@@ -10,15 +10,14 @@ class APIServer(BaseHTTPRequestHandler):
 
 	# When called it grabs the client header information and sets the pattern
 	#   for the return header content type
-  def get_Response(self):
+  def get_Request(self):
     self.send_response(200)
-    # self.send_header('Content-type', 'text/html')
-    self.send_header('Content-type', 'application/json')
+    self.send_header('Content-type', 'text/html')
     self.end_headers()
 
   # When receives an httpd GET request, process it.
   def do_GET(self):
-    self.get_Response()
+    self.get_Request()
 
     # favicon is a request that is paired with every other request.
     #   Ignore favicon but process all other requests process
@@ -28,6 +27,7 @@ class APIServer(BaseHTTPRequestHandler):
     	# chkRequest will return the value of the request if it is valid
       result = chkRequest(str(self.path))
       self.wfile.write('{}'.format(result).encode('utf-8'))
+
 
 # Whatever is the main request in the GET header, 
 #   this looks for a matching value and if found, 
