@@ -3,7 +3,7 @@ import socket
 import subprocess
 from subprocess import Popen
 
-def diskutil_nt():
+def run_nt():
   # import wmi
 
   # c = wmi.WMI()
@@ -20,7 +20,7 @@ def diskutil_nt():
   return retval
 
 
-def diskutil_posix():
+def run_posix():
   diskinfo = {}
 
   df = Popen(["df","-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)

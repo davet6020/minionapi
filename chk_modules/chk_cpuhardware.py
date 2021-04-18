@@ -1,7 +1,7 @@
 import os
 import socket
 
-def cpuhw_nt():
+def run_nt():
   # import wmi
 
   # c = wmi.WMI()
@@ -18,7 +18,7 @@ def cpuhw_nt():
   return retval
 
 
-def cpuhw_posix():
+def run_posix():
   cpuinfo = {}
 
   with open('/proc/cpuinfo', 'r') as f:

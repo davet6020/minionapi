@@ -1,7 +1,7 @@
 import os
 import socket
 
-def memhw_nt():
+def run_nt():
   # import wmi
 
   # c = wmi.WMI()
@@ -23,7 +23,7 @@ def memhw_nt():
 
 
 
-def memhw_posix():
+def run_posix():
   meminfo = {}
 
   with open('/proc/meminfo', 'r') as f:

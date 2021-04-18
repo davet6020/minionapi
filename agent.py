@@ -1,18 +1,16 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import socket
-import chk_uptime
-import chk_cpuhardware
-import chk_diskhardware
-import chk_diskutilisation
-import chk_memhardware
+import sys
+# insert chk_modules in path so they can be dynamically loaded.
+sys.path.insert(1, 'chk_modules/')
 
 # I like this because by itself it is unable to handle GET/POST requests.
 #    Instead you have to use sub classes such as do_GET to handle requests.
 class APIServer(BaseHTTPRequestHandler):
 
-	# When called it grabs the client header information and sets the pattern
-	#   for the return header content type
+  # When called it grabs the client header information and sets the pattern
+  #   for the return header content type
   def get_Request(self):
     self.send_response(200)
     self.send_header('Content-type', 'text/html')
@@ -27,7 +25,7 @@ class APIServer(BaseHTTPRequestHandler):
     if self.path.endswith('favicon.ico'):
       return
     else:
-    	# chkRequest will return the value of the request if it is valid
+      # chkRequest will return the value of the request if it is valid
       result = chkRequest(str(self.path))
       self.wfile.write('{}'.format(result).encode('utf-8'))
 
@@ -37,41 +35,23 @@ class APIServer(BaseHTTPRequestHandler):
 #   runs the request asked for
 def chkRequest(path, chkval=''):
 
-	# Get system uptime
-  if(path.endswith('uptime')):
-    if os.name == 'nt':
-      print(chk_uptime.uptime_nt())
-    else:
-      chkval = chk_uptime.uptime_posix()
+  # if first char is / remove it
+  if path[0] == '/':
+    path = path[1:]
 
-  # Get cpu hardware information
-  if(path.endswith('cpuhardware')):
-    if os.name == 'nt':
-      print(chk_cpuhardware.cpuhw_nt())
-    else:
-      chkval = chk_cpuhardware.cpuhw_posix()
+  # What module did they request from
+  chk_module = 'chk_' + path
 
-  # Get disk hardware information
-  if(path.endswith('diskhardware')):
-    if os.name == 'nt':
-      print(chk_diskhardware.diskhw_nt())
-    else:
-      chkval = chk_diskhardware.diskhw_posix()
+  # import the module
+  module = __import__(chk_module)
 
-  # Get disk utilisation information
-  if(path.endswith('diskutilisation')):
-    if os.name == 'nt':
-      print(chk_diskutilisation.diskutil_nt())
-    else:
-      chkval = chk_diskutilisation.diskutil_posix()
+  if os.name == 'nt':
+    func = getattr(module, 'run_nt')
+  else:
+    func = getattr(module, 'run_posix')
 
-  # Get memory hardware information
-  if(path.endswith('memhardware')):
-    if os.name == 'nt':
-      print(chk_memhardware.memhw_nt())
-    else:
-      chkval = chk_memhardware.memhw_posix()
-
+  # Run the pre-fabbed function
+  chkval = func()
 
   # chkval and what is returned from hostinfo() are both dictionaries
   #   In python >= 3.9.0 join dictionaries together with a |
@@ -113,6 +93,7 @@ def agent(server_class=HTTPServer, handler_class=APIServer, port=999):
   # If you do not do this, even though the agent is halted, the port will be allocated
   httpd.server_close()
   print('Shutting down httpd {}:{}'.format(ip, port))
+
 
 if __name__ == '__main__':
   from sys import argv

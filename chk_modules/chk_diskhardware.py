@@ -1,7 +1,7 @@
 import os
 import socket
 
-def diskhw_nt():
+def run_nt():
   # import wmi
 
   # c = wmi.WMI()
@@ -18,7 +18,7 @@ def diskhw_nt():
   return retval
 
 
-def diskhw_posix():
+def run_posix():
   diskinfo = {}
 
   disk = os.statvfs('/')

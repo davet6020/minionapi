@@ -22,7 +22,7 @@ def secs(unixtime):
     return retval
 
 
-def uptime_nt():
+def run_nt():
   import wmi
 
   c = wmi.WMI()
@@ -37,7 +37,7 @@ def uptime_nt():
   return retval
 
 
-def uptime_posix():
+def run_posix():
   uptime = {}
 
   with open('/proc/uptime', 'r') as f:
