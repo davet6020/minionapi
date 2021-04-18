@@ -33,7 +33,7 @@ class APIServer(BaseHTTPRequestHandler):
 # Whatever is the main request in the GET header, 
 #   this looks for a matching value and if found, 
 #   runs the request asked for
-def chkRequest(path, chkval=''):
+def chkRequest(path, chkval={}):
 
   # if first char is / remove it
   if path[0] == '/':
@@ -43,7 +43,12 @@ def chkRequest(path, chkval=''):
   chk_module = 'chk_' + path
 
   # import the module
-  module = __import__(chk_module)
+  try:
+    module = __import__(chk_module)
+  except ImportError:
+    chkval['Error'] = 'Module ' + chk_module + ' does not exist'
+    retval = {**chkval, **hostinfo()}
+    return retval
 
   if os.name == 'nt':
     func = getattr(module, 'run_nt')
