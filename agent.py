@@ -3,6 +3,8 @@ import os
 import socket
 import chk_uptime
 import chk_cpuhardware
+import chk_diskhardware
+import chk_memhardware
 
 # I like this because by itself it is unable to handle GET/POST requests.
 #    Instead you have to use sub classes such as do_GET to handle requests.
@@ -44,9 +46,24 @@ def chkRequest(path, chkval=''):
   # Get cpu hardware information
   if(path.endswith('cpuhardware')):
     if os.name == 'nt':
-      print(chk_cpuhardware.hw_nt())
+      print(chk_cpuhardware.cpuhw_nt())
     else:
-      chkval = chk_cpuhardware.hw_posix()
+      chkval = chk_cpuhardware.cpuhw_posix()
+
+  # Get disk hardware information
+  if(path.endswith('diskhardware')):
+    if os.name == 'nt':
+      print(chk_diskhardware.diskhw_nt())
+    else:
+      chkval = chk_diskhardware.diskhw_posix()
+
+  # Get memory hardware information
+  if(path.endswith('memhardware')):
+    if os.name == 'nt':
+      print(chk_memhardware.memhw_nt())
+    else:
+      chkval = chk_memhardware.memhw_posix()
+
 
   # chkval and what is returned from hostinfo() are both dictionaries
   #   In python >= 3.9.0 join dictionaries together with a |
@@ -70,7 +87,7 @@ def hostinfo():
   hostinfo['ip'] = ip
 
   return hostinfo
-  
+
 
 def agent(server_class=HTTPServer, handler_class=APIServer, port=999):
   # Get the IP address of this host
