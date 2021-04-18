@@ -1,7 +1,9 @@
 import os
 import socket
+import subprocess
+from subprocess import Popen
 
-def diskhw_nt():
+def diskutil_nt():
   # import wmi
 
   # c = wmi.WMI()
@@ -18,12 +20,30 @@ def diskhw_nt():
   return retval
 
 
-def diskhw_posix():
+def diskutil_posix():
   diskinfo = {}
 
-  disk = os.statvfs('/')
-  diskinfo['Total Size'] = str(round(disk.f_frsize * disk.f_blocks / 1000 / 1000 / 1000, 2)) + ' GB'
-  diskinfo['Free Size'] = str(round(disk.f_frsize * disk.f_bfree / 1000 / 1000 / 1000, 2)) + ' GB'
+  df = Popen(["df","-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+  output, errors = df.communicate()
+
+  line = output.split('\n')
+
+  cnt = 0
+  
+
+  for row in line:
+    if cnt == 1:
+      col = row.split()
+      ccnt = 0
+      for c in col:
+        if ccnt == 5:
+          print('c: ', c)
+        ccnt += 1
+    cnt += 1
+    
+
+
+
 
   retval = diskinfo
  

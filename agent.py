@@ -4,6 +4,7 @@ import socket
 import chk_uptime
 import chk_cpuhardware
 import chk_diskhardware
+import chk_diskutilisation
 import chk_memhardware
 
 # I like this because by itself it is unable to handle GET/POST requests.
@@ -56,6 +57,13 @@ def chkRequest(path, chkval=''):
       print(chk_diskhardware.diskhw_nt())
     else:
       chkval = chk_diskhardware.diskhw_posix()
+
+  # Get disk utilisation information
+  if(path.endswith('diskutilisation')):
+    if os.name == 'nt':
+      print(chk_diskutilisation.diskutil_nt())
+    else:
+      chkval = chk_diskutilisation.diskutil_posix()
 
   # Get memory hardware information
   if(path.endswith('memhardware')):
