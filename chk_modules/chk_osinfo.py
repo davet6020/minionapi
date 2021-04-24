@@ -1,7 +1,7 @@
 import os
+import platform
 import socket
-import subprocess
-from subprocess import Popen
+import sys
 
 def run_nt():
   # import wmi
@@ -21,26 +21,17 @@ def run_nt():
 
 
 def run_posix():
-  diskinfo = {}
+  osinfo = {}
 
-  df = Popen(["df","-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-  output, errors = df.communicate()
+  osinfo['name'] = os.name
+  osinfo['uname'] = sys.platform
+  osinfo['platform'] = platform.machine()
+  osinfo['architecture'] = platform.architecture()
+  osinfo['release'] = platform.release()
+  osinfo['version'] = platform.version()
 
-  line = output.split('\n')
 
-  cnt = 0
-  
-  for row in line:
-    if cnt == 1:
-      col = row.split()
-      ccnt = 0
-      for c in col:
-        if ccnt == 5:
-          print('c: ', c)
-        ccnt += 1
-    cnt += 1
-  
-
-  retval = diskinfo
+  retval = osinfo
  
   return retval
+

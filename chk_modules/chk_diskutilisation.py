@@ -1,7 +1,5 @@
 import os
 import socket
-import subprocess
-from subprocess import Popen
 
 def run_nt():
   # import wmi
@@ -23,28 +21,21 @@ def run_nt():
 def run_posix():
   diskinfo = {}
 
-  df = Popen(["df","-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-  output, errors = df.communicate()
+  # disk = os.statvfs('/')
+  # diskinfo['Total Size'] = str(round(disk.f_bsize * disk.f_blocks / 1000 / 1000 / 1000, 2)) + ' GB'
+  # diskinfo['Free Size'] = str(round(disk.f_bsize * disk.f_bfree / 1000 / 1000 / 1000, 2)) + ' GB'
 
-  line = output.split('\n')
-
-  cnt = 0
-  
-
-  for row in line:
-    if cnt == 1:
-      col = row.split()
-      ccnt = 0
-      for c in col:
-        if ccnt == 5:
-          print('c: ', c)
-        ccnt += 1
-    cnt += 1
-    
+  # retval = diskinfo
+ 
+  # return retval
 
 
-
+  s = os.statvfs('/')
+  GB = float(1024**3)
+  diskinfo['Total Size'] = str(round(float(s.f_blocks) * float(s.f_frsize) / GB, 2)) + ' GB'
+  diskinfo['Free Size'] = str(round(float(s.f_bavail) * float(s.f_frsize) / GB, 2)) + ' GB'
 
   retval = diskinfo
  
   return retval
+
