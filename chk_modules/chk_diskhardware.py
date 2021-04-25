@@ -41,6 +41,8 @@ def run_posix():
     cnt += 1
   
 
+  diskinfo['chk_id'] = 3
+
   retval = diskinfo
  
   return retval

@@ -38,6 +38,8 @@ def run_posix():
         v = val.strip().split(' ')[0]
         meminfo['Memory Free'] = str(int((int(v) / 1000))) + ' GB'
 
+  meminfo['chk_id'] = 5
+
   retval = meminfo
  
   return retval

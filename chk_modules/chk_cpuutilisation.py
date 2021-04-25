@@ -13,13 +13,17 @@ def run_nt():
 
   #   retval = secs(c)
 
-  retval = "cpuhardware for NT not implemented yet"
+  retval = "cpuutilisation for NT not implemented yet"
 
   return retval
 
 
 def run_posix():
   cpuinfo = {}
+  cpuinfo['cpuutilisation'] = 'Not implemented yet'
+  cpuinfo['chk_id'] = 7
+  retval = cpuinfo
+  return retval
 
   with open('/proc/cpuinfo', 'r') as f:
     core_cnt = 1
@@ -41,8 +45,6 @@ def run_posix():
 
       if key.strip() == 'model name':
         cpuinfo[key.strip()] = val.strip()
-
-    cpuinfo['chk_id'] = 2
 
   retval = cpuinfo
  

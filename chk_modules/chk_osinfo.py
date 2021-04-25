@@ -29,7 +29,7 @@ def run_posix():
   osinfo['architecture'] = platform.architecture()
   osinfo['release'] = platform.release()
   osinfo['version'] = platform.version()
-
+  osinfo['chk_id'] = 6
 
   retval = osinfo
  

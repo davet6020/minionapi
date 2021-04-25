@@ -43,6 +43,7 @@ def run_posix():
   with open('/proc/uptime', 'r') as f:
     uptime_seconds = float(f.readline().split()[0])
     uptime['uptime'] = secs(uptime_seconds)
+    uptime['chk_id'] = 1
     retval = uptime
 
   return retval

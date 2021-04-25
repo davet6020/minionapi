@@ -17,8 +17,13 @@ import sys
 import time
 from sqlite3 import connect
 
-
 def database_connection():
+  conn = connect('/share/finalapi/db/controller.db')
+
+  return conn
+
+
+def database_misc():
   koda = "select i.hostname, i.ip, s.cron, ct.chk_key \
                   from inventory i \
                   join scheduler s on i.id=s.hostid \
@@ -72,27 +77,79 @@ def database_connection():
     print(inspect.stack()[0][3])
 
 
-def job():
-    # url = "http://192.168.1.144:999/diskutilisation"
+def job_ORIG():
     url = "http://192.168.1.31:999/diskutilisation"
-    # data = requests.get(url).json
     data = requests.get(url)
     print(data.text)
-    
+  
+
+def job(curl):
+  url = curl
+  data = requests.get(url)
+  print(data.text)
+
 
 
 '''This is the main function. It gets things started.'''
 def main():
+  # curl http://192.168.1.39:999/osinfo
 
-  # database_connection()
-  schedule.every(3).seconds.do(job)
+  minutes = "select i.ip, i.port, ct.chk_key \
+                  from inventory i \
+                  join scheduler s on i.id=s.hostid \
+                  join chk_type ct on s.chk_id=ct.chk_id \
+                  where substr(s.cron, -1) = 'M' \
+                  order by i.hostname;"
+
+  days = "select i.ip, i.port, ct.chk_key \
+                  from inventory i \
+                  join scheduler s on i.id=s.hostid \
+                  join chk_type ct on s.chk_id=ct.chk_id \
+                  where substr(s.cron, -1) = 'D' \
+                  order by i.hostname;"
+
+
+  conn = database_connection()
+  curs = conn.cursor()
+  curs.execute(minutes)
+
+  sch_minutes = {}
+  cnt = 0
+
+  for ip, port, chk_key in curs.fetchall():
+    url = 'http://' + ip + ':' + str(port) + '/' + chk_key
+    sch_minutes[cnt] = url
+    schedule.every(10).seconds.do(job, curl=url)
+    # schedule.every(2).seconds.do(greet, name='Alice')
+    cnt += 1
+
+  # print(ip, port, chk_key)
+  # print(sch_minutes)
+
+  # conn.close()
+
+
+
+  # schedule.every(10).seconds.do(job)
 
   while True:
     schedule.run_pending()
     time.sleep(1)
 
-
-
+"""
+{'Total Size': '28.98 GB', 'Free Size': '25.58 GB', 'hostname': 'blackpanther', 'ip': '192.168.1.31'}
+{'Memory Total': '1881 GB', 'Memory Free': '1490 GB', 'hostname': 'blackpanther', 'ip': '192.168.1.31'}
+{'cpuutilisation': 'Not implemented yet', 'hostname': 'blackpanther', 'ip': '192.168.1.31'}
+{'Total Size': '31.37 GB', 'Free Size': '20.8 GB', 'hostname': 'captainamerica', 'ip': '192.168.1.32'}
+{'Memory Total': '12264 GB', 'Memory Free': '11422 GB', 'hostname': 'captainamerica', 'ip': '192.168.1.32'}
+{'cpuutilisation': 'Not implemented yet', 'hostname': 'captainamerica', 'ip': '192.168.1.32'}
+{'Total Size': '31.37 GB', 'Free Size': '20.24 GB', 'hostname': 'daredevil', 'ip': '192.168.1.33'}
+{'Memory Total': '4038 GB', 'Memory Free': '3591 GB', 'hostname': 'daredevil', 'ip': '192.168.1.33'}
+{'cpuutilisation': 'Not implemented yet', 'hostname': 'daredevil', 'ip': '192.168.1.33'}
+{'Total Size': '28.98 GB', 'Free Size': '25.57 GB', 'hostname': 'ironman', 'ip': '192.168.1.34'}
+{'Memory Total': '8008 GB', 'Memory Free': '7351 GB', 'hostname': 'ironman', 'ip': '192.168.1.34'}
+{'cpuutilisation': 'Not implemented yet', 'hostname': 'ironman', 'ip': '192.168.1.34'}
+"""
 
 """
 Things that happen in here:

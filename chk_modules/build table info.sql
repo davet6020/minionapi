@@ -43,3 +43,9 @@ VALUES (1, '1', 'chk_uptime', 'How long the system has been running'),
  (5, '5', 'chk_memutilisation', 'Memory total and memory free')
 
 
+INSERT INTO scheduler (id, hostid, chk_id, cron)
+VALUES (25, 1, 7, '1M'),
+ (26, 2, 7, '1M'),
+ (27, 3, 7, '1M'),
+ (28, 4, 7, '1M');
+

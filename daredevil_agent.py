@@ -74,24 +74,21 @@ def hostinfo():
   hostinfo = {}
 
   hostname = socket.gethostname()
-
-  sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-  sock.connect(('8.8.8.8', 1))  # Resolve outbound Internet address
-  ip = sock.getsockname()[0]
+  ip = socket.gethostbyname(hostname)
 
   hostinfo['hostname'] = hostname
-  hostinfo['ip'] = ip
+  hostinfo['ip'] = '192.168.1.196'
 
   return hostinfo
 
 
 def agent(server_class=HTTPServer, handler_class=APIServer, port=999):
-  # Get the IP address and hostname of this host
-  hostname = hostinfo().get('hostname')
-  ip = hostinfo().get('ip')
+  # Get the IP address of this host
+  # ip = socket.gethostbyname(socket.gethostname())
+  ip = '192.168.1.196'
   server_address = (ip, port)
   httpd = server_class(server_address, handler_class)
-  print('Starting httpd on {}:{}:{}'.format(hostname, ip, port))
+  print('Starting httpd on {}:{}'.format(ip, port))
 
   # A wrapper to run the web server until you quit
   try:
