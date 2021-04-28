@@ -2,7 +2,7 @@ MySQL data
 
 CREATE TABLE chk_history (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	(hostid INT('11') NOT NULL,),
+	hostid INT(11) NOT NULL,
 	chk_id INT(11) NOT NULL,
 	chk_val varchar(255) NOT NULL,
 	date_recorded DATETIME NOT NULL

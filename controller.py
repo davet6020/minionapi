@@ -9,7 +9,7 @@ __mysqluser__   = "api"
 __mysqlpass__   = "W3akPa$$word"
 
 import ast
-import datetime
+from datetime import datetime
 import inspect
 import json
 import os
@@ -17,48 +17,50 @@ import pathlib
 import requests
 import schedule
 import socket
-import sqlite3
+import pymysql
 import sys
 import time
-from sqlite3 import connect
 
 def database_connection():
-  conn = connect('/share/finalapi/db/controller.db', timeout=2)
+  # mysql5.7
+  db = pymysql.connect(host='localhost',user='api',password='W3akPa$$word',database='controller')
+  # curs = db.cursor()
 
-  return conn
-
+  return db
 
 def insert(writeval):
-  conn = database_connection()
-  curs = conn.cursor()
-  # insert into chk_history: hostid, chk_id, chk_val, datetime
-    
+  db = database_connection()
+  curs = db.cursor()
+  
   print(writeval)
   for key in writeval:
-    if key == 'host_id':
-      host_id = int(writeval[key])
+    if key == 'hostid':
+      hostid = int(writeval[key])
 
     if key == 'chk_id':
       chk_id = int(writeval[key])
 
-
   chk_val = str(writeval)
-  date_recorded = datetime.datetime.now()
-  data = (host_id, chk_id, chk_val, date_recorded)
-  sql = """insert into chk_history (hostid, chk_id, chk_val, date_recorded) values(?,?,?,?)"""
+
+  now = datetime.now()
+  date_recorded = now.strftime('%Y-%m-%d %H:%M:%S')
+
+  data = (hostid, chk_id, chk_val, date_recorded)
+
+  sql = "insert into chk_history (hostid, chk_id, chk_val, date_recorded) values(%s, %s, %s, %s)"
 
   curs.execute(sql, data)
-  conn.commit()
-  conn.close()
-  exit()
+  db.commit()
+  db.close()
+
 
 def read():
     print(inspect.stack()[0][3])
   
 
-def jobWORKS(curl, host_id, chk_id):
+def jobWORKS(curl, hostid, chk_id):
   jobid = {}
-  jobid['host_id'] = host_id
+  jobid['hostid'] = hostid
   jobid['chk_id'] = chk_id
 
   url = curl
@@ -71,10 +73,10 @@ def jobWORKS(curl, host_id, chk_id):
   print(retval)
 
 
-def job(curl, host_id, chk_id):
+def job(curl, hostid, chk_id):
   do_insert = False
   jobid = {}
-  jobid['host_id'] = host_id
+  jobid['hostid'] = hostid
   jobid['chk_id'] = chk_id
 
   url = curl
@@ -97,6 +99,9 @@ def job(curl, host_id, chk_id):
 
 '''This is the main function. It gets things started.'''
 def main():
+  db = database_connection()
+  curs = db.cursor()
+
   schedule_types = {
         'seconds',
         'minutes',
@@ -140,9 +145,6 @@ def main():
                   where substr(s.cron, -1) = 'W' \
                   order by i.hostname;"
 
-  conn = database_connection()
-  curs = conn.cursor()
-
   for stype in schedule_types:
     if stype == 'seconds':
       curs.execute(seconds)
@@ -160,18 +162,18 @@ def main():
       url = 'http://' + ip + ':' + str(port) + '/' + chk_key
 
       if stype == 'seconds':
-        schedule.every(1).seconds.do(job, curl=url, host_id=hid, chk_id=cid)
+        schedule.every(cron).seconds.do(job, curl=url, hostid=hid, chk_id=cid)
       elif stype == 'minutes':
-        schedule.every(cron).minutes.do(job, curl=url, host_id=hid, chk_id=cid)
+        schedule.every(cron).minutes.do(job, curl=url, hostid=hid, chk_id=cid)
       elif stype == 'hours':
-        schedule.every(cron).hours.do(job, curl=url, host_id=hid, chk_id=cid)
+        schedule.every(cron).hours.do(job, curl=url, hostid=hid, chk_id=cid)
       elif stype == 'days':
-        schedule.every(cron).days.do(job, curl=url, host_id=hid, chk_id=cid)
+        schedule.every(cron).days.do(job, curl=url, hostid=hid, chk_id=cid)
       else: # weeks
-        schedule.every(cron).weeks.do(job, curl=url, host_id=hid, chk_id=cid)
+        schedule.every(cron).weeks.do(job, curl=url, hostid=hid, chk_id=cid)
 
 
-  conn.close()
+  curs.close()
 
   while True:
     schedule.run_pending()

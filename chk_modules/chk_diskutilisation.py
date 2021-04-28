@@ -25,7 +25,6 @@ def run_posix():
   GB = float(1024**3)
   diskinfo['Total Size'] = str(round(float(s.f_blocks) * float(s.f_frsize) / GB, 2)) + ' GB'
   diskinfo['Free Size'] = str(round(float(s.f_bavail) * float(s.f_frsize) / GB, 2)) + ' GB'
-  # diskinfo['chk_id'] = 4
 
   retval = diskinfo
  

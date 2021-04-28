@@ -42,8 +42,6 @@ def run_posix():
       if key.strip() == 'model name':
         cpuinfo[key.strip()] = val.strip()
 
-    cpuinfo['chk_id'] = 2
-
   retval = cpuinfo
  
   return retval
