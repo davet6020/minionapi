@@ -1,5 +1,6 @@
 import ast
 from datetime import datetime
+from genshi.template import TemplateLoader
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import inspect
 import json
@@ -10,7 +11,6 @@ import schedule
 import socket
 import sys
 import time
-
 
 
 # I like this because by itself it is unable to handle GET/POST requests.
@@ -35,10 +35,40 @@ class APIServer(BaseHTTPRequestHandler):
     else:
       # chkRequest will return the value of the request if it is valid
       path = self.path
-       
+    
+    # This is the router:
+
     # if first char is / remove it
     if path[0] == '/':
       path = path[1:]
+    # if last char is / remove it
+    if path[-1] == '/':
+      path = path[:-1]
+
+    # Split path on '/'
+    reqSplit = path.split('/')
+    # If they just want the main dashboard
+    if len(reqSplit) == 1 and reqSplit[0] == 'dashboard':
+      dashboard(self)
+
+      return
+
+    # If they requested an individual hostname dashboard
+    elif len(reqSplit) == 2 and reqSplit[0] == 'dashboard':
+      hostname = reqSplit[1]
+      dash_host_summary_display(self, hostname)
+
+      return
+
+    # Not a valid request, go to 404
+    else:
+      msg =  '<h1 style="color: #5e9ca0;">&nbsp; &nbsp; &nbsp;:-( 404&nbsp; )-:</h1>'
+      msg += '<h1 style="color: #5e9ca0;">Page Not Found</h1>'
+      self.wfile.write('{}'.format(msg).encode('utf-8'))
+
+      return
+
+    exit()
 
     # Call the function named after the request value if it is on the safelist
     # Otherwise they can call any global function and break stuff
@@ -70,14 +100,56 @@ def buildHTMLTemplate():
 
   return htmltemplate
 
-def get_uptime():
+
+def dash_host_summary_display(self, hostname):
+  # This is called from do_GET if an individual hostname dashboard is requested
+  data = dash_host_summary_data(self, hostname)
+
+  
+  loader = TemplateLoader(['templates'])
+  tmpl = loader.load('dash_host_summary.html')
+  stream = tmpl.generate(title='Summary Dashboard for ' + hostname, hostname=hostname, data=data)
+  output = stream.render()
+  self.wfile.write('{}'.format(output).encode('utf-8'))
+
+
+  return
+
+
+def dash_host_summary_data(self, hostname):
+  # We have the hostname, return all the data so the template can get it
+  data = {}
+
+  db = database_connection()
+  curs = db.cursor()
+
+  # Get CPU hardware information
+  sql = "select distinct cpu_sockets, cpu_cores, model_name, cpu_mhz from data_cpuhardware \
+          where hostname = '" + hostname + "'"
+  print(sql)
+  curs.execute(sql)
+
+  for cpu_sockets, cpu_cores, model_name, cpu_mhz in curs.fetchall():
+    data['cpu_sockets'] = cpu_sockets
+    data['cpu_cores'] = cpu_cores
+    data['model_name'] = model_name
+    data['cpu_mhz'] = cpu_mhz
+
+
+
+  return data
+
+
+
+def dash_uptime():
   output = ''
   output += '<div class="row">'
   output += '<div>uptime stuff</div></div>'
+
   return output
 
 
-def get_cpuhardware():
+def dash_cpuhardware():
   output = ''
   db = database_connection()
   curs = db.cursor()
@@ -110,19 +182,20 @@ def get_cpuhardware():
 
   return output
 
-def dashboard():
+def dashboard(self):
   output = ''
   htmltemplate = buildHTMLTemplate()
 
+  # Build in all the css and basic html headers
   for key in htmltemplate:
     output += htmltemplate[key]
 
-  output += get_cpuhardware()
-  output += get_uptime()
-
-  retval = output
-
-  return retval
+  # Here we need to generate the main dashboard info
+  output += '<h1>This is the main dashboard</h1>'
+  output += '<h1>This is the main dashboard</h1>'
+  output += '<h1>This is the main dashboard</h1>'
+  
+  self.wfile.write('{}'.format(output).encode('utf-8'))
 
 
 def database_connection():

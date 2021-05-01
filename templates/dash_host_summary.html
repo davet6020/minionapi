@@ -1,0 +1,21 @@
+<?python
+  fruits = ["apple", "orange", "kiwi"]
+?>
+<!DOCTYPE html>
+<html xmlns:py="http://genshi.edgewall.org/">
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title py:content="title">This is replaced.</title>
+  </head>
+
+  <body>
+    <h1>Host Summary Page for: ${hostname}</h1>
+    <h3>CPU Hardware Info:</h3>
+    <div class="row" py:for="ci in data">
+      <div class="col-sm-1">${ci}:</div>
+      <div class="col-sm-11">${data[ci]}</div>
+    </div>
+  </body>
+</html>
+
