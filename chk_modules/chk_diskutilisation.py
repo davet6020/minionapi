@@ -23,8 +23,9 @@ def run_posix():
 
   s = os.statvfs('/')
   GB = float(1024**3)
-  diskinfo['Total Size'] = str(round(float(s.f_blocks) * float(s.f_frsize) / GB, 2)) + ' GB'
-  diskinfo['Free Size'] = str(round(float(s.f_bavail) * float(s.f_frsize) / GB, 2)) + ' GB'
+  diskinfo['Total Size'] = str(round(float(s.f_blocks) * float(s.f_frsize) / GB, 2))
+  diskinfo['Free Size'] = str(round(float(s.f_bavail) * float(s.f_frsize) / GB, 2))
+  diskinfo['size_type'] = 'GB'
 
   retval = diskinfo
  

@@ -1,0 +1,15 @@
+CONTROLLER:
+
+If no data is returned, skip insert.
+
+
+
+AGENTS:
+finish cpu_diskhardware
+
+
+DASHBOARD:
+design - Individual page for each hostname
+main page - summary of all hosts
+
+

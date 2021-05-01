@@ -56,3 +56,70 @@ INSERT INTO scheduler (hostid, chk_id, cron)
  (5, 5, '1M'),
  (5, 6, '1D'),
  (5, 7, '1M');
+
+
+
+CREATE TABLE `data_uptime` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostid` int(11) NOT NULL,
+  `chk_id` int(200) NOT NULL,
+  `uptime` varchar(255) NOT NULL,
+  `hostname` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `date_recorded` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `data_cpuhardware` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostid` int(11) NOT NULL,
+  `chk_id` int(200) NOT NULL,
+  `cpu_sockets` int(11) NOT NULL,
+  `cpu_cores` int(11) NOT NULL,
+  `model_name` varchar(255) NOT NULL,
+  `cpu_mhz` varchar(255) NOT NULL,
+  `hostname` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `date_recorded` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `data_diskutilisation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostid` int(11) NOT NULL,
+  `chk_id` int(11) NOT NULL,
+  `total_size` decimal(19,2) NOT NULL,
+  `free_size` decimal(19,2) NOT NULL,
+  `size_type` varchar(255) NOT NULL DEFAULT 'GB',
+  `hostname` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `date_recorded` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `data_memutilisation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostid` int(11) NOT NULL,
+  `chk_id` int(11) NOT NULL,
+  `memory_total` decimal(19,2) NOT NULL,
+  `memory_free` decimal(19,2) NOT NULL,
+  `size_type` varchar(255) NOT NULL DEFAULT 'GB',
+  `hostname` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `date_recorded` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `data_cpuutilisation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostid` int(11) NOT NULL,
+  `chk_id` int(11) NOT NULL,
+  `cpu_pct` decimal(19,2) NOT NULL,
+  `hostname` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `date_recorded` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+

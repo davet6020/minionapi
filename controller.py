@@ -14,10 +14,10 @@ import inspect
 import json
 import os
 import pathlib
+import pymysql
 import requests
 import schedule
 import socket
-import pymysql
 import sys
 import time
 
@@ -29,27 +29,101 @@ def database_connection():
   return db
 
 def insert(writeval):
+  q = ''
   db = database_connection()
   curs = db.cursor()
   
   print(writeval)
   for key in writeval:
+    # size_type = 'GB'
+    now = datetime.now()
+    date_recorded = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    if key == 'chk_key':
+      table = 'data_' + writeval[key]
+
     if key == 'hostid':
       hostid = int(writeval[key])
+
+    if key == 'hostname':
+      hostname = str(writeval[key])
+
+    if key == 'ip':
+      ip = str(writeval[key])
 
     if key == 'chk_id':
       chk_id = int(writeval[key])
 
-  chk_val = str(writeval)
+    if key == 'cpu_pct':
+      cpu_pct = writeval[key]
 
-  now = datetime.now()
-  date_recorded = now.strftime('%Y-%m-%d %H:%M:%S')
+    if key == 'cpu sockets':
+      cpu_sockets = writeval[key]
 
-  data = (hostid, chk_id, chk_val, date_recorded)
+    if key == 'cpu cores':
+      cpu_cores = writeval[key]
 
-  sql = "insert into chk_history (hostid, chk_id, chk_val, date_recorded) values(%s, %s, %s, %s)"
+    if key == 'model name':
+      model_name = writeval[key]
 
-  curs.execute(sql, data)
+    if key == 'cpu MHz':
+      cpu_mhz = writeval[key]
+
+    if key == 'Total Size':
+      total_size = writeval[key]
+
+    if key == 'Memory Total':
+      memory_total = writeval[key]
+
+    if key == 'Memory Free':
+      memory_free = writeval[key]
+
+    if key == 'Free Size':
+      free_size = writeval[key]
+
+    if key == 'size_type':
+      size_type = writeval[key]
+
+    if key == 'uptime':
+      uptime = writeval[key]
+
+
+    # Depending on the chk type, update the data value and insert sql
+    if writeval[key] == 'cpuhardware':
+      data = (hostid, chk_id, cpu_sockets, cpu_cores, model_name, cpu_mhz, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, cpu_sockets, cpu_cores, model_name, cpu_mhz, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s, %s)']
+
+    if writeval[key] == 'cpuutilisation':
+      data = (hostid, chk_id, cpu_pct, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, cpu_pct, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s)']
+
+    if writeval[key] == 'diskutilisation':
+      data = (hostid, chk_id, total_size, free_size, size_type, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, total_size, free_size, size_type, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s)']
+
+    if writeval[key] == 'memutilisation':
+      data = (hostid, chk_id, memory_total, memory_free, size_type, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, memory_total, memory_free, size_type, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s)']
+
+    if writeval[key] == 'uptime':
+      data = (hostid, chk_id, uptime, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, uptime, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s)']
+
+
+  # Build the final insert sql
+  sql = ' '.join(q)
+
+  try:
+    curs.execute(sql, data)
+  except Exception as e:
+    print('========== ERROR START ==========')
+    print(sql)
+    print(data)
+    print(traceback.format_exception(*sys.exc_info()))
+    print(e)
+    print('========== ERROR END ==========')
+
+
   db.commit()
   db.close()
 
@@ -58,26 +132,12 @@ def read():
     print(inspect.stack()[0][3])
   
 
-def jobWORKS(curl, hostid, chk_id):
-  jobid = {}
-  jobid['hostid'] = hostid
-  jobid['chk_id'] = chk_id
-
-  url = curl
-  d1 = requests.get(url)
-  d2 = d1.text
-  data = ast.literal_eval(d2)
-
-  retval = {**data, **jobid}
-
-  print(retval)
-
-
-def job(curl, hostid, chk_id):
+def job(curl, hostid, chk_id, chk_key):
   do_insert = False
   jobid = {}
   jobid['hostid'] = hostid
   jobid['chk_id'] = chk_id
+  jobid['chk_key'] = chk_key
 
   url = curl
 
@@ -162,15 +222,15 @@ def main():
       url = 'http://' + ip + ':' + str(port) + '/' + chk_key
 
       if stype == 'seconds':
-        schedule.every(cron).seconds.do(job, curl=url, hostid=hid, chk_id=cid)
+        schedule.every(cron).seconds.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
       elif stype == 'minutes':
-        schedule.every(cron).minutes.do(job, curl=url, hostid=hid, chk_id=cid)
+        schedule.every(cron).minutes.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
       elif stype == 'hours':
-        schedule.every(cron).hours.do(job, curl=url, hostid=hid, chk_id=cid)
+        schedule.every(cron).hours.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
       elif stype == 'days':
-        schedule.every(cron).days.do(job, curl=url, hostid=hid, chk_id=cid)
+        schedule.every(cron).days.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
       else: # weeks
-        schedule.every(cron).weeks.do(job, curl=url, hostid=hid, chk_id=cid)
+        schedule.every(cron).weeks.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
 
 
   curs.close()

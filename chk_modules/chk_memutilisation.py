@@ -25,6 +25,7 @@ def run_nt():
 
 def run_posix():
   meminfo = {}
+  meminfo['size_type'] = 'GB'
 
   with open('/proc/meminfo', 'r') as f:
     for line in f:
@@ -32,11 +33,11 @@ def run_posix():
       
       if key.strip() == 'MemTotal':
         v = val.strip().split(' ')[0]
-        meminfo['Memory Total'] = str(int((int(v) / 1000))) + ' GB'
+        meminfo['Memory Total'] = str(int((int(v) / 1000)))
 
       if key.strip() == 'MemFree':
         v = val.strip().split(' ')[0]
-        meminfo['Memory Free'] = str(int((int(v) / 1000))) + ' GB'
+        meminfo['Memory Free'] = str(int((int(v) / 1000)))
 
   retval = meminfo
  
