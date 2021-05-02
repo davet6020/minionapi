@@ -104,6 +104,8 @@ def insert(writeval):
     if key == 'version':
       version = writeval[key]
 
+    if key == 'uptime':
+      uptime = writeval[key]
 
     # Depending on the chk type, update the data value and insert sql
     if writeval[key] == 'cpuhardware':
