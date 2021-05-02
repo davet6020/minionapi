@@ -123,3 +123,52 @@ CREATE TABLE `data_cpuutilisation` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
+CREATE TABLE `data_diskhardware` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostid` int(11) NOT NULL,
+  `chk_id` int(11) NOT NULL,
+  `mount_point` text NOT NULL,
+  `hostname` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `date_recorded` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+
+ CREATE TABLE `data_osinfo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hostid` int(11) NOT NULL,
+  `chk_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `uname` varchar(255) NOT NULL,
+  `platform` varchar(255) NOT NULL,
+  `architecture` varchar(255) NOT NULL,
+  `release` varchar(255) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  `hostname` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `date_recorded` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+  osinfo['name'] = os.name
+  osinfo['uname'] = sys.platform
+  osinfo['platform'] = platform.machine()
+  osinfo['architecture'] = platform.architecture()
+  osinfo['release'] = platform.release()
+  osinfo['version'] = platform.version()
+
+{'name': 'posix', 
+'uname': 'linux', 
+'platform': 'x86_64', 
+'architecture': ('64bit', 'ELF'), 
+'release': '3.10.0-1160.24.1.el7.x86_64', 
+'version': '#1 SMP Thu Apr 8 19:51:47 UTC 2021', 
+'hostname': 'blackpanther', 
+'ip': '192.168.1.31'}
+
+
+
+select ch.*, cu.*, dh.*, du.*, mu.*, up.* from data_cpuhardware ch, data_cpuutilisation cu, data_diskhardware dh, data_diskutilisation du, data_memutilisation mu, data_uptime up where ch.hostid = cu.hostid and cu.hostid=1 order by cu.date_recorded desc limit 1;
+
+

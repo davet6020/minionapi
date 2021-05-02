@@ -22,11 +22,18 @@ def run_nt():
 
 def run_posix():
   osinfo = {}
+  return osinfo
 
   osinfo['name'] = os.name
   osinfo['uname'] = sys.platform
-  osinfo['platform'] = platform.machine()
-  osinfo['architecture'] = platform.architecture()
+  # osinfo['platform'] = platform.machine()
+
+  plat = platform.architecture()
+  pform = ''
+  for p in plat:
+    pform += ' ' + p
+
+  osinfo['architecture'] = pform.strip()
   osinfo['release'] = platform.release()
   osinfo['version'] = platform.version()
 

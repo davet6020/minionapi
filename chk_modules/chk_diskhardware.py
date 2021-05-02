@@ -22,6 +22,7 @@ def run_nt():
 
 def run_posix():
   diskinfo = {}
+  mp = {}
 
   df = Popen(["df","-h"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
   output, errors = df.communicate()
@@ -31,15 +32,12 @@ def run_posix():
   cnt = 0
   
   for row in line:
-    if cnt == 1:
-      col = row.split()
-      ccnt = 0
-      for c in col:
-        if ccnt == 5:
-          print('c: ', c)
-        ccnt += 1
+    mp[cnt] = row
     cnt += 1
 
+  diskinfo = {}
+  diskinfo['mount_point'] = mp
+  
   retval = diskinfo
  
   return retval

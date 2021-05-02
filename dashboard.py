@@ -105,82 +105,148 @@ def dash_host_summary_display(self, hostname):
   # This is called from do_GET if an individual hostname dashboard is requested
   data = dash_host_summary_data(self, hostname)
 
-  
   loader = TemplateLoader(['templates'])
   tmpl = loader.load('dash_host_summary.html')
   stream = tmpl.generate(title='Summary Dashboard for ' + hostname, hostname=hostname, data=data)
   output = stream.render()
   self.wfile.write('{}'.format(output).encode('utf-8'))
 
-
   return
 
 
 def dash_host_summary_data(self, hostname):
-  # We have the hostname, return all the data so the template can get it
-  data = {}
+  # maybe call each of the dash values and ensure they are always the latest info
+  dup = dash_uptime(self, hostname)
+  dch = dash_cpuhardware(self, hostname)
+  dcu = dash_cpuutilisation(self, hostname)
+  ddh = dash_diskhardware(self, hostname)
+  ddu = dash_diskutilisation(self, hostname)
+  dmu = dash_memutilisation(self, hostname)
 
+  data = {**dup, **dch, **dcu, **ddh, **ddu, **dmu}
+
+  return data
+
+
+def dash_cpuhardware(self, hostname):
+  data = {}
+  # We have the hostname, return all the data so the template can get it
   db = database_connection()
   curs = db.cursor()
 
   # Get CPU hardware information
-  sql = "select distinct cpu_sockets, cpu_cores, model_name, cpu_mhz from data_cpuhardware \
-          where hostname = '" + hostname + "'"
-  print(sql)
-  curs.execute(sql)
+  sql = "select date_recorded, cpu_sockets, cpu_cores, model_name, cpu_mhz from data_cpuhardware \
+   where hostname = '" + hostname + "' order by id desc limit 1"
 
-  for cpu_sockets, cpu_cores, model_name, cpu_mhz in curs.fetchall():
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    # print(traceback.format_exception(*sys.exc_info()))
+    print(e)
+
+  for date_recorded, cpu_sockets, cpu_cores, model_name, cpu_mhz in curs.fetchall():
+    data['date_recorded'] = date_recorded
     data['cpu_sockets'] = cpu_sockets
     data['cpu_cores'] = cpu_cores
     data['model_name'] = model_name
     data['cpu_mhz'] = cpu_mhz
 
+  return data
 
+
+def dash_cpuutilisation(self, hostname):
+  data = {}
+  # We have the hostname, return all the data so the template can get it
+  db = database_connection()
+  curs = db.cursor()
+
+  # Get CPU hardware information
+  sql = "select cpu_pct from data_cpuutilisation \
+   where hostname = '" + hostname + "' order by id desc limit 1"
+
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    # print(traceback.format_exception(*sys.exc_info()))
+    print(e)
+
+  for cpu_pct in curs.fetchall():
+    data['cpu_pct'] = cpu_pct
 
   return data
 
 
-
-def dash_uptime():
-  output = ''
-  output += '<div class="row">'
-  output += '<div>uptime stuff</div></div>'
-
-  return output
-
-
-def dash_cpuhardware():
-  output = ''
+def dash_diskhardware(self, hostname):
+  data = {}
+  # We have the hostname, return all the data so the template can get it
   db = database_connection()
   curs = db.cursor()
 
-  sql = "select hostname, cpu_sockets, cpu_cores, model_name, cpu_mhz from data_cpuhardware where hostname='captainamerica' limit 1"
-  sql = "select distinct hostname, cpu_sockets, cpu_cores, model_name, cpu_mhz from data_cpuhardware"
-  curs.execute(sql)
+  # Get CPU hardware information
+  sql = "select mount_point from data_diskhardware \
+   where hostname = '" + hostname + "' order by id desc limit 1"
 
-  for hostname, cpu_sockets, cpu_cores, model_name, cpu_mhz in curs.fetchall():
-    output += '<h3>Hostname: ' + hostname + '</h3>'
-    output += '<div class="row">'
-    output += '<div class="col-sm-1">Model:</div>'
-    output += '<div class="col-sm-11">' + model_name + '</div>'
-    output += '</div>'
-    
-    output += '<div class="row">'
-    output += '<div class="col-sm-1">Sockets:</div>'
-    output += '<div class="col-sm-11">' + str(cpu_sockets) + '</div>'
-    output += '</div>'
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    # print(traceback.format_exception(*sys.exc_info()))
+    print(e)
 
-    output += '<div class="row">'
-    output += '<div class="col-sm-1">Cores:</div>'
-    output += '<div class="col-sm-11">' + str(cpu_cores) + '</div>'
-    output += '</div>'
+  for mount_point in curs.fetchall():
+    data['mount_point'] = mount_point
 
-    output += '<div class="row">'
-    output += '<div class="col-sm-1">Speed:</div>'
-    output += '<div class="col-sm-11">' + str(cpu_mhz) + ' MHz</div>'
-    output += '</div></div>'
+  return data
 
-  return output
+
+def dash_diskutilisation(self, hostname):
+  data = {}
+  # We have the hostname, return all the data so the template can get it
+  db = database_connection()
+  curs = db.cursor()
+
+  # Get CPU hardware information
+  sql = "select total_size, free_size, size_type from data_diskutilisation \
+   where hostname = '" + hostname + "' order by id desc limit 1"
+
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    # print(traceback.format_exception(*sys.exc_info()))
+    print(e)
+
+  for total_size, free_size, size_type in curs.fetchall():
+    data['total_size'] = str(total_size) + ' ' + size_type
+    data['free_size'] = str(free_size) + ' ' + size_type
+
+  return data
+
+
+def dash_memutilisation(self, hostname):
+  data = {}
+  return data
+
+
+def dash_uptime(self, hostname):
+  data = {}
+  # We have the hostname, return all the data so the template can get it
+  db = database_connection()
+  curs = db.cursor()
+
+  # Get CPU hardware information
+  sql = "select uptime from data_uptime \
+   where hostname = '" + hostname + "' order by id desc limit 1"
+
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    # print(traceback.format_exception(*sys.exc_info()))
+    print(e)
+
+  for uptime in curs.fetchall():
+    data['uptime'] = uptime
+
+  return data
+
 
 def dashboard(self):
   output = ''
