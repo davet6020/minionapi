@@ -33,7 +33,7 @@ def run_posix():
     arch += ' ' + a
 
   osinfo['architecture'] = arch.strip()
-  osinfo['release'] = platform.release()
+  # osinfo['release'] = platform.release()
   osinfo['version'] = platform.version()
 
   retval = osinfo

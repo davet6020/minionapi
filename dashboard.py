@@ -223,6 +223,29 @@ def dash_diskutilisation(self, hostname):
 
 def dash_memutilisation(self, hostname):
   data = {}
+  # We have the hostname, return all the data so the template can get it
+  db = database_connection()
+  curs = db.cursor()
+
+  # Get CPU hardware information
+  sql = "select memory_total, memory_free, size_type from data_memutilisation \
+   where hostname = '" + hostname + "' order by id desc limit 1"
+
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    # print(traceback.format_exception(*sys.exc_info()))
+    print(e)
+
+  for memory_total, memory_free, size_type in curs.fetchall():
+    data['memory_total'] = str(memory_total) + ' ' + size_type
+    data['memory_free'] = str(memory_free) + ' ' + size_type
+
+  return data
+
+
+def dash_osinfo(self, hostname):
+  data = {}
   return data
 
 

@@ -29,8 +29,8 @@ def database_connection():
   return db
 
 def insert(writeval):
-  q = ''
   data = {}
+  q = ''
 
   db = database_connection()
   curs = db.cursor()
@@ -128,8 +128,8 @@ def insert(writeval):
 
     if writeval[key] == 'osinfo':
       return
-      data = (hostid, chk_id, name, uname, platform, architecture, release, version, hostname, ip, date_recorded)
-      q = ['insert into', table, '(hostid, chk_id, name, uname, platform, architecture, release, version, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)']
+      data = (hostid, chk_id, name, uname, platform, architecture, version, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, name, uname, platform, architecture, version, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)']
 
 
   # Build the final insert sql
@@ -138,12 +138,7 @@ def insert(writeval):
   try:
     curs.execute(sql, data)
   except Exception as e:
-    print('========== ERROR START ==========')
-    print(sql)
-    print(data)
-    print(traceback.format_exception(*sys.exc_info()))
     print(e)
-    print('========== ERROR END ==========')
 
 
   db.commit()
