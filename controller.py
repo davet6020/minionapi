@@ -35,7 +35,7 @@ def insert(writeval):
   db = database_connection()
   curs = db.cursor()
   
-  print(writeval)
+  print('writeval:', writeval)
   for key in writeval:
     # size_type = 'GB'
     now = datetime.now()
@@ -128,6 +128,9 @@ def insert(writeval):
 
     if writeval[key] == 'osinfo':
       return
+      data = (hostid, chk_id, name, uname, platform, architecture, release, version, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, name, uname, platform, architecture, release, version, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)']
+
 
   # Build the final insert sql
   sql = ' '.join(q)
