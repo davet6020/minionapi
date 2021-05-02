@@ -86,8 +86,23 @@ def insert(writeval):
     if key == 'size_type':
       size_type = writeval[key]
 
-    if key == 'uptime':
-      uptime = writeval[key]
+    if key == 'name':
+      name = writeval[key]
+
+    if key == 'uname':
+      uname = writeval[key]
+
+    if key == 'platform':
+      platform = writeval[key]
+
+    if key == 'architecture':
+      architecture = writeval[key]
+
+    if key == 'release':
+      release = writeval[key]
+
+    if key == 'version':
+      version = writeval[key]
 
 
     # Depending on the chk type, update the data value and insert sql

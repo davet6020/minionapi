@@ -25,18 +25,17 @@ def run_posix():
 
   osinfo['name'] = os.name
   osinfo['uname'] = sys.platform
-  # osinfo['platform'] = platform.machine()
+  osinfo['platform'] = platform.machine()
 
-  plat = platform.architecture()
-  pform = ''
-  for p in plat:
-    pform += ' ' + p
+  architecture = platform.architecture()
+  arch = ''
+  for a in architecture:
+    arch += ' ' + a
 
-  osinfo['architecture'] = pform.strip()
+  osinfo['architecture'] = arch.strip()
   osinfo['release'] = platform.release()
   osinfo['version'] = platform.version()
 
   retval = osinfo
  
   return retval
-
