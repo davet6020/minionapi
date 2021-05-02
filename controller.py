@@ -30,6 +30,8 @@ def database_connection():
 
 def insert(writeval):
   q = ''
+  data = {}
+
   db = database_connection()
   curs = db.cursor()
   
@@ -109,6 +111,8 @@ def insert(writeval):
       data = (hostid, chk_id, uptime, hostname, ip, date_recorded)
       q = ['insert into', table, '(hostid, chk_id, uptime, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s)']
 
+    if writeval[key] == 'osinfo':
+      return
 
   # Build the final insert sql
   sql = ' '.join(q)
@@ -135,6 +139,7 @@ def read():
 def job(curl, hostid, chk_id, chk_key):
   do_insert = False
   jobid = {}
+  data = {}
   jobid['hostid'] = hostid
   jobid['chk_id'] = chk_id
   jobid['chk_key'] = chk_key
@@ -147,8 +152,7 @@ def job(curl, hostid, chk_id, chk_key):
     data = ast.literal_eval(d2)
     do_insert = True
   except requests.exceptions.RequestException as e:
-    data = {}
-    print (e)
+    print('could not connect to host: {} for check: {}'.format(hostid, chk_key))
 
   retval = {**data, **jobid}
 

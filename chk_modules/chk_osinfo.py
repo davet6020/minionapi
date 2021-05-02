@@ -22,7 +22,6 @@ def run_nt():
 
 def run_posix():
   osinfo = {}
-  return osinfo
 
   osinfo['name'] = os.name
   osinfo['uname'] = sys.platform
