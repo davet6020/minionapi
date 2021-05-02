@@ -122,8 +122,9 @@ def dash_host_summary_data(self, hostname):
   ddh = dash_diskhardware(self, hostname)
   ddu = dash_diskutilisation(self, hostname)
   dmu = dash_memutilisation(self, hostname)
+  doi = dash_osinfo(self, hostname)
 
-  data = {**dup, **dch, **dcu, **ddh, **ddu, **dmu}
+  data = {**dup, **dch, **dcu, **ddh, **ddu, **dmu, **doi}
 
   return data
 
@@ -246,6 +247,27 @@ def dash_memutilisation(self, hostname):
 
 def dash_osinfo(self, hostname):
   data = {}
+  # We have the hostname, return all the data so the template can get it
+  db = database_connection()
+  curs = db.cursor()
+
+  # Get CPU hardware information
+  sql = "select name, uname, platform, architecture, version from data_osinfo \
+   where hostname = '" + hostname + "' order by id desc limit 1"
+
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    # print(traceback.format_exception(*sys.exc_info()))
+    print(e)
+
+  for name, uname, platform, architecture, version in curs.fetchall():
+    data['name'] = str(name)
+    data['uname'] = str(uname)
+    data['platform'] = str(platform)
+    data['architecture'] = str(architecture)
+    data['version'] = str(version)
+
   return data
 
 
