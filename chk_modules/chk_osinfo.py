@@ -23,6 +23,20 @@ def run_nt():
 def run_posix():
   osinfo = {}
 
+  # Get linux type eg Fedora, CentOS etc
+  file = open('/etc/os-release', 'r')
+  linux = ''
+  for f in file:
+    # info = f.readline().split('=')
+    data = f.split('=')
+    if data[0] == 'NAME':
+      linux += data[1].strip()
+
+    if data[0] == 'VERSION':
+      vers = data[1]
+      linux += ' ' + vers
+
+  osinfo['linux'] = linux
   osinfo['name'] = os.name
   osinfo['uname'] = sys.platform
   osinfo['platform'] = platform.machine()
@@ -33,7 +47,6 @@ def run_posix():
     arch += ' ' + a
 
   osinfo['architecture'] = arch.strip()
-  # osinfo['release'] = platform.release()
   osinfo['version'] = platform.version()
 
   retval = osinfo

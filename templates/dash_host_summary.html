@@ -11,11 +11,12 @@
 
   <body>
     <h1>Host Summary Page for: ${hostname}</h1>
-    <h3>CPU Hardware Info:</h3>
+    
     <div class="row" py:for="ci in data">
-      <div class="col-sm-2">${ci}:</div>
+      <div class="col-sm-2"><b>${ci}:</b></div>
       <div class="col-sm-10">${data[ci]}</div>
     </div>
+
+
   </body>
 </html>
-

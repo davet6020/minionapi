@@ -107,6 +107,9 @@ def insert(writeval):
     if key == 'uptime':
       uptime = writeval[key]
 
+    if key == 'linux':
+      linux = writeval[key]
+
     # Depending on the chk type, update the data value and insert sql
     if writeval[key] == 'cpuhardware':
       data = (hostid, chk_id, cpu_sockets, cpu_cores, model_name, cpu_mhz, hostname, ip, date_recorded)
@@ -129,9 +132,12 @@ def insert(writeval):
       q = ['insert into', table, '(hostid, chk_id, uptime, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s)']
 
     if writeval[key] == 'osinfo':
-      return
-      data = (hostid, chk_id, name, uname, platform, architecture, version, hostname, ip, date_recorded)
-      q = ['insert into', table, '(hostid, chk_id, name, uname, platform, architecture, version, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)']
+      data = (hostid, chk_id, platform, linux, hostname, ip, date_recorded)
+      q = ['insert into', table, '(hostid, chk_id, platform, linux, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s)']
+
+      # return
+      # data = (hostid, chk_id, name, uname, platform, architecture, version, linux, hostname, ip, date_recorded)
+      # q = ['insert into', table, '(hostid, chk_id, name, uname, platform, architecture, version, linux, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)']
 
 
   # Build the final insert sql

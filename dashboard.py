@@ -124,7 +124,7 @@ def dash_host_summary_data(self, hostname):
   dmu = dash_memutilisation(self, hostname)
   doi = dash_osinfo(self, hostname)
 
-  data = {**dup, **dch, **dcu, **ddh, **ddu, **dmu, **doi}
+  data = {**dup, **dch, **dcu, **ddu, **dmu, **doi}
 
   return data
 
@@ -136,7 +136,7 @@ def dash_cpuhardware(self, hostname):
   curs = db.cursor()
 
   # Get CPU hardware information
-  sql = "select date_recorded, cpu_sockets, cpu_cores, model_name, cpu_mhz from data_cpuhardware \
+  sql = "select cpu_sockets, cpu_cores, model_name, cpu_mhz from data_cpuhardware \
    where hostname = '" + hostname + "' order by id desc limit 1"
 
   try:
@@ -145,8 +145,7 @@ def dash_cpuhardware(self, hostname):
     # print(traceback.format_exception(*sys.exc_info()))
     print(e)
 
-  for date_recorded, cpu_sockets, cpu_cores, model_name, cpu_mhz in curs.fetchall():
-    data['date_recorded'] = date_recorded
+  for cpu_sockets, cpu_cores, model_name, cpu_mhz in curs.fetchall():
     data['cpu_sockets'] = cpu_sockets
     data['cpu_cores'] = cpu_cores
     data['model_name'] = model_name
@@ -252,7 +251,7 @@ def dash_osinfo(self, hostname):
   curs = db.cursor()
 
   # Get CPU hardware information
-  sql = "select name, uname, platform, architecture, version from data_osinfo \
+  sql = "select platform, linux from data_osinfo \
    where hostname = '" + hostname + "' order by id desc limit 1"
 
   try:
@@ -261,12 +260,9 @@ def dash_osinfo(self, hostname):
     # print(traceback.format_exception(*sys.exc_info()))
     print(e)
 
-  for name, uname, platform, architecture, version in curs.fetchall():
-    data['name'] = str(name)
-    data['uname'] = str(uname)
+  for platform, linux in curs.fetchall():
     data['platform'] = str(platform)
-    data['architecture'] = str(architecture)
-    data['version'] = str(version)
+    data['linux'] = str(linux)
 
   return data
 
@@ -278,7 +274,7 @@ def dash_uptime(self, hostname):
   curs = db.cursor()
 
   # Get CPU hardware information
-  sql = "select uptime from data_uptime \
+  sql = "select date_recorded, uptime from data_uptime \
    where hostname = '" + hostname + "' order by id desc limit 1"
 
   try:
@@ -287,7 +283,8 @@ def dash_uptime(self, hostname):
     # print(traceback.format_exception(*sys.exc_info()))
     print(e)
 
-  for uptime in curs.fetchall():
+  for date_recorded, uptime in curs.fetchall():
+    data['date_recorded'] = date_recorded
     data['uptime'] = uptime
 
   return data

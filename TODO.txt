@@ -1,15 +1,18 @@
 CONTROLLER:
-
-If no data is returned, skip insert.
+def insert() get rid of that huge bunch of if statements
 
 
 
 AGENTS:
-finish cpu_diskhardware
+would like to show the os type eg Manjaro vs CentOS
+fix days bug in uptime
 
 
 DASHBOARD:
-design - Individual page for each hostname
 main page - summary of all hosts
+host summary page - format it nicer
+host summary page - graph for cpu utilisation pct
+disk hardware agent doesnt show up
 
 
+WORKFLOW diagram
