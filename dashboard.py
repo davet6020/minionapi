@@ -63,7 +63,7 @@ class APIServer(BaseHTTPRequestHandler):
     reqSplit = path.split('/')
 
     # If they just want the main dashboard
-    if len(reqSplit) == 1 and reqSplit[0] == '':
+    if len(reqSplit) == 1 and reqSplit[0] == 'dashboard':
       dashboard(self)
       return
 
@@ -277,18 +277,22 @@ def dash_uptime(self, hostname):
 
   return data
 
-def dashboard_data(self):
-  # Call each of the dash values and ensure they are always the latest info
-  # dup = dash_uptime(self, hostname)
-  # dch = dash_cpuhardware(self, hostname)
-  # dcu = dash_cpuutilisation(self, hostname)
-  # ddh = dash_diskhardware(self, hostname)
-  # ddu = dash_diskutilisation(self, hostname)
-  # dmu = dash_memutilisation(self, hostname)
-  # doi = dash_osinfo(self, hostname)
 
-  # data = {**dup, **dch, **dcu, **ddu, **dmu, **doi}
-  data = "MONKEYS"
+# show a list of all hosts and choice to go to them.
+def dashboard_data(self):
+  data = {}
+  db = database_connection()
+  curs = db.cursor()
+
+  sql = "select hostname from inventory order by hostname"
+
+  try:
+    curs.execute(sql)
+  except Exception as e:
+    print(e)
+
+  for hostname in curs.fetchall():
+    data[hostname] = hostname
 
   return data
 
@@ -307,37 +311,13 @@ def dashboard(self):
 
 
 def FourOhFour(self):
-  # msg =  '<h1 style="color: #5e9ca0;">&nbsp; &nbsp; &nbsp;:-( 404&nbsp; )-:</h1>'
-  # msg += '<h1 style="color: #5e9ca0;">Page Not Found</h1>'
-  # self.wfile.write('{}'.format(msg).encode('utf-8'))
-
-  # This is called from do_GET if a page that doesnt exist is called
-  # data = dashboard_data(self)
-
   loader = TemplateLoader(['templates'])
   tmpl = loader.load('404.html')
-  # stream = tmpl.generate(title='PAGE NOT FOUND', data=data)
-  stream = tmpl.generate(title='PAGE NOT FOUND')
+  stream = tmpl.generate(title='404 Page Not Found')
   output = stream.render()
   self.wfile.write('{}'.format(output).encode('utf-8'))
 
   return
-
-
-def dashboardOLD(self):
-  output = ''
-  htmltemplate = buildHTMLTemplate()
-
-  # Build in all the css and basic html headers
-  for key in htmltemplate:
-    output += htmltemplate[key]
-
-  # Here we need to generate the main dashboard info
-  output += '<h1>This is the main dashboard</h1>'
-  output += '<h1>This is the main dashboard</h1>'
-  output += '<h1>This is the main dashboard</h1>'
-  
-  self.wfile.write('{}'.format(output).encode('utf-8'))
 
 
 def database_connection():

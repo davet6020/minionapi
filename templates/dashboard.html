@@ -8,10 +8,10 @@
 
   <body>
     <h1>Dashboard</h1>
+    <h3>Click a host to view summary page</h3>
 
     <div class="row" py:for="ci in data">
-<!--       <div class="col-sm-2"><b>${ci}:</b></div>
-      <div class="col-sm-10">${data[ci]}</div> -->
+      <div class="col-sm-10"><a href="http://192.168.1.50/dashboard/${data[ci]}">${data[ci]}</a></div>
     </div>
 
   </body>
