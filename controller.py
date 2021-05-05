@@ -24,7 +24,6 @@ import time
 def database_connection():
   # mysql5.7
   db = pymysql.connect(host='localhost',user='api',password='W3akPa$$word',database='controller')
-  # curs = db.cursor()
 
   return db
 
@@ -35,9 +34,10 @@ def insert(writeval):
   db = database_connection()
   curs = db.cursor()
   
-  print('writeval:', writeval)
+  print(writeval)
+
+  # This should really be a better way but it works
   for key in writeval:
-    # size_type = 'GB'
     now = datetime.now()
     date_recorded = now.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -135,11 +135,6 @@ def insert(writeval):
       data = (hostid, chk_id, platform, linux, hostname, ip, date_recorded)
       q = ['insert into', table, '(hostid, chk_id, platform, linux, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s)']
 
-      # return
-      # data = (hostid, chk_id, name, uname, platform, architecture, version, linux, hostname, ip, date_recorded)
-      # q = ['insert into', table, '(hostid, chk_id, name, uname, platform, architecture, version, linux, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)']
-
-
   # Build the final insert sql
   sql = ' '.join(q)
 
@@ -148,14 +143,9 @@ def insert(writeval):
   except Exception as e:
     print(e)
 
-
   db.commit()
   db.close()
 
-
-def read():
-    print(inspect.stack()[0][3])
-  
 
 def job(curl, hostid, chk_id, chk_key):
   do_insert = False
@@ -179,7 +169,6 @@ def job(curl, hostid, chk_id, chk_key):
 
   if do_insert:
     insert(retval)
-    # print(retval)
 
 
 '''This is the main function. It gets things started.'''
@@ -264,21 +253,5 @@ def main():
     schedule.run_pending()
     time.sleep(1)
 
-
-"""
-Things that happen in here:
-- Connect to db
-- Get from db what jobs need to run eg list of IPs, request names and how often to run them.
-- Batch all requests into time blocks
-- As each request is run, store the values into the appropriate db->table
-"""
-
-"""
-TODOs
-- Write output to the database
-- Put in try catch so if it does not connect to an agent, skip/continue
-- Write the cpuutilisation chk
-
-"""
 
 main()

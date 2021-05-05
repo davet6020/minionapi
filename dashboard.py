@@ -1,3 +1,14 @@
+__author__      = "Richard D. Twiggs"
+__student_id__  = "1131828"
+__license__     = "MIT"
+__version__     = "1.0"
+__email__       = "richard.twiggs@maine.edu"
+__status__      = "Final"
+__module__      = "Dashboard"
+__mysqluser__   = "api"
+__mysqlpass__   = "W3akPa$$word"
+
+
 import ast
 from datetime import datetime
 from genshi.template import TemplateLoader
@@ -39,56 +50,34 @@ class APIServer(BaseHTTPRequestHandler):
     # This is the router:
 
     # if first char is / remove it
-    if path[0] == '/':
-      path = path[1:]
+    if len(path) > 0:
+      if path[0] == '/':
+        path = path[1:]
+
     # if last char is / remove it
-    if path[-1] == '/':
-      path = path[:-1]
+    if len(path) > 0:
+      if path[-1] == '/':
+        path = path[:-1]
 
     # Split path on '/'
     reqSplit = path.split('/')
-    # If they just want the main dashboard
-    if len(reqSplit) == 1 and reqSplit[0] == 'dashboard':
-      dashboard(self)
 
+    # If they just want the main dashboard
+    if len(reqSplit) == 1 and reqSplit[0] == '':
+      dashboard(self)
       return
 
     # If they requested an individual hostname dashboard
     elif len(reqSplit) == 2 and reqSplit[0] == 'dashboard':
       hostname = reqSplit[1]
       dash_host_summary_display(self, hostname)
-
       return
 
     # Not a valid request, go to 404
     else:
-      msg =  '<h1 style="color: #5e9ca0;">&nbsp; &nbsp; &nbsp;:-( 404&nbsp; )-:</h1>'
-      msg += '<h1 style="color: #5e9ca0;">Page Not Found</h1>'
-      self.wfile.write('{}'.format(msg).encode('utf-8'))
-
+      FourOhFour(self)
       return
 
-    exit()
-
-    # Call the function named after the request value if it is on the safelist
-    # Otherwise they can call any global function and break stuff
-    safelist = ['querydb', 'dashboard']
-    for s in safelist:
-      found = False
-      
-      if path == s:
-        found = True
-        break
-
-    if found:
-      func = globals()[path]()
-      self.wfile.write('{}'.format(func).encode('utf-8'))
-      return
-    else:
-      msg =  '<h1 style="color: #5e9ca0;">&nbsp; &nbsp; &nbsp;:-( 404&nbsp; )-:</h1>'
-      msg += '<h1 style="color: #5e9ca0;">Page Not Found</h1>'
-      self.wfile.write('{}'.format(msg).encode('utf-8'))
-      return
 
 def buildHTMLTemplate():
   htmltemplate = {}
@@ -115,7 +104,7 @@ def dash_host_summary_display(self, hostname):
 
 
 def dash_host_summary_data(self, hostname):
-  # maybe call each of the dash values and ensure they are always the latest info
+  # Call each of the dash values and ensure they are always the latest info
   dup = dash_uptime(self, hostname)
   dch = dash_cpuhardware(self, hostname)
   dcu = dash_cpuutilisation(self, hostname)
@@ -280,7 +269,6 @@ def dash_uptime(self, hostname):
   try:
     curs.execute(sql)
   except Exception as e:
-    # print(traceback.format_exception(*sys.exc_info()))
     print(e)
 
   for date_recorded, uptime in curs.fetchall():
@@ -289,8 +277,54 @@ def dash_uptime(self, hostname):
 
   return data
 
+def dashboard_data(self):
+  # Call each of the dash values and ensure they are always the latest info
+  # dup = dash_uptime(self, hostname)
+  # dch = dash_cpuhardware(self, hostname)
+  # dcu = dash_cpuutilisation(self, hostname)
+  # ddh = dash_diskhardware(self, hostname)
+  # ddu = dash_diskutilisation(self, hostname)
+  # dmu = dash_memutilisation(self, hostname)
+  # doi = dash_osinfo(self, hostname)
+
+  # data = {**dup, **dch, **dcu, **ddu, **dmu, **doi}
+  data = "MONKEYS"
+
+  return data
+
 
 def dashboard(self):
+  # This is called from do_GET if an individual hostname dashboard is requested
+  data = dashboard_data(self)
+
+  loader = TemplateLoader(['templates'])
+  tmpl = loader.load('dashboard.html')
+  stream = tmpl.generate(title='Main Dashboard Page', data=data)
+  output = stream.render()
+  self.wfile.write('{}'.format(output).encode('utf-8'))
+
+  return
+
+
+def FourOhFour(self):
+  # msg =  '<h1 style="color: #5e9ca0;">&nbsp; &nbsp; &nbsp;:-( 404&nbsp; )-:</h1>'
+  # msg += '<h1 style="color: #5e9ca0;">Page Not Found</h1>'
+  # self.wfile.write('{}'.format(msg).encode('utf-8'))
+
+  # This is called from do_GET if a page that doesnt exist is called
+  # data = dashboard_data(self)
+
+  loader = TemplateLoader(['templates'])
+  tmpl = loader.load('404.html')
+  # stream = tmpl.generate(title='PAGE NOT FOUND', data=data)
+  stream = tmpl.generate(title='PAGE NOT FOUND')
+  output = stream.render()
+  self.wfile.write('{}'.format(output).encode('utf-8'))
+
+  return
+
+
+def dashboardOLD(self):
   output = ''
   htmltemplate = buildHTMLTemplate()
 
@@ -311,11 +345,6 @@ def database_connection():
   db = pymysql.connect(host='localhost',user='api',password='W3akPa$$word',database='controller')
 
   return db
-
-
-def querydb():
-  return 'Query the db for data'
-
 
 
 # We want this for every agent.  This data will
