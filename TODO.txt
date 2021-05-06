@@ -2,17 +2,8 @@ CONTROLLER:
 def insert() get rid of that huge bunch of if statements
 
 
-
-AGENTS:
-would like to show the os type eg Manjaro vs CentOS
-fix days bug in uptime
-
-
 DASHBOARD:
-main page - summary of all hosts
 host summary page - format it nicer
 host summary page - graph for cpu utilisation pct
 disk hardware agent doesnt show up
 
-
-WORKFLOW diagram
