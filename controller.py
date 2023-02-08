@@ -133,8 +133,8 @@ def insert(writeval):
 
     if writeval[key] == 'osinfo':
       data = (hostid, chk_id, platform, linux, hostname, ip, date_recorded)
-      q = ['insert into', table, '(hostid, chk_id, platform, linux, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s)']
-
+      q = ['insert into', table, '(hostid, chk_id, platform, os, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s)']
+      
   # Build the final insert sql
   sql = ' '.join(q)
 
@@ -161,6 +161,12 @@ def job(curl, hostid, chk_id, chk_key):
     d1 = requests.get(url)
     d2 = d1.text
     data = ast.literal_eval(d2)
+
+    # Strip off \n and double quotes from any variables.
+#    for d in data:
+#        data[d] = data[d].strip()
+#        data[d] = data[d].replace('"', '')
+
     do_insert = True
   except requests.exceptions.RequestException as e:
     print('could not connect to host: {} for check: {}'.format(hostid, chk_key))

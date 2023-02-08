@@ -240,13 +240,12 @@ def dash_osinfo(self, hostname):
   curs = db.cursor()
 
   # Get CPU hardware information
-  sql = "select platform, linux from data_osinfo \
+  sql = "select platform, os from data_osinfo \
    where hostname = '" + hostname + "' order by id desc limit 1"
 
   try:
     curs.execute(sql)
   except Exception as e:
-    # print(traceback.format_exception(*sys.exc_info()))
     print(e)
 
   for platform, linux in curs.fetchall():

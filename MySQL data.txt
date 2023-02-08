@@ -1,0 +1,89 @@
+MySQL data
+
+CREATE TABLE chk_history (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	hostid INT(11) NOT NULL,
+	chk_id INT(11) NOT NULL,
+	chk_val varchar(255) NOT NULL,
+	date_recorded DATETIME NOT NULL
+);
+
+
+CREATE TABLE chk_type (
+	id INTEGER AUTO_INCREMENT PRIMARY KEY,
+	chk_id INTEGER(11) NOT NULL,
+	chk_key	varchar(255) NOT NULL,
+	chk_desc varchar(255) NOT NULL
+);
+
+
+CREATE TABLE inventory (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ hostname varchar(255) NOT NULL,
+ ip varchar(255) NOT NULL,
+ port INT(11) NOT NULL DEFAULT 999
+);
+
+
+CREATE TABLE scheduler (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ hostid INT(11) NOT NULL,
+ chk_id INT(11) NOT NULL,
+ cron varchar(11) NOT NULL DEFAULT '1H'
+);
+
+
+INSERT INTO chk_type (chk_id, chk_key, chk_desc)
+VALUES (1, 'uptime', 'How long the system has been running'),
+(2, 'cpuhardware', 'CPU specification; speed, manufacturer, etc'),
+(3, 'diskhardware', 'Disk mount points and device names'),
+(4, 'diskutilisation', 'Disk total size and free space'),
+(5, 'memutilisation', 'Memory total and memory free'),
+(6, 'osinfo', 'Operating System Information'),
+(7, 'cpuutilisation', 'CPU load over time');
+
+
+INSERT INTO inventory (hostname, ip, port)
+VALUES('blackpanther','192.168.1.31',999),
+('captainamerica','192.168.1.32',999),
+('daredevil','192.168.1.33',999),
+('ironman','192.168.1.34',999),
+('spiderman','192.168.1.35',999);
+
+
+INSERT INTO scheduler (hostid, chk_id, cron)
+VALUES (1,1,'1H'),
+(2,1,'1H'),
+(3,1,'1H'),
+(4,1,'1H'),
+(1,2,'1D'),
+(2,2,'1D'),
+(3,2,'1D'),
+(4,2,'1D'),
+(1,3,'1H'),
+(2,3,'1H'),
+(3,3,'1H'),
+(4,3,'1H'),
+(1,4,'1M'),
+(2,4,'1M'),
+(3,4,'1M'),
+(4,4,'1M'),
+(1,5,'1M'),
+(2,5,'1M'),
+(3,5,'1M'),
+(4,5,'1M'),
+(1,6,'1D'),
+(2,6,'1D'),
+(3,6,'1D'),
+(4,6,'1D'),
+(1,7,'15S'),
+(2,7,'15S'),
+(3,7,'15S'),
+(4,7,'15S'),
+(5,1,'1H'),
+(5,2,'1D'),
+(5,3,'1H'),
+(5,4,'1M'),
+(5,5,'1M'),
+(5,6,'1D'),
+(5,7,'15S');

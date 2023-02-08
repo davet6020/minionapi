@@ -1,3 +1,6 @@
+<?python
+  fruits = ["apple", "orange", "kiwi"]
+?>
 <!DOCTYPE html>
 <html xmlns:py="http://genshi.edgewall.org/">
   <head>
@@ -7,12 +10,11 @@
   </head>
 
   <body>
-    <h1>Dashboard</h1>
-    <h3>Click a host to view summary page</h3>
-
-    <div class="row" py:for="ci in data">
-      <div class="col-sm-10"><a href="http://10.0.0.200/dashboard/${data[ci]}">${data[ci]}</a></div>
-    </div>
-
+    <p>These are some of my favorite fruits:</p>
+    <ul>
+      <li py:for="fruit in fruits">
+        I like ${fruit}s
+      </li>
+    </ul>
   </body>
 </html>
