@@ -1,13 +1,3 @@
-__author__      = "Richard D. Twiggs"
-__student_id__  = "1131828"
-__license__     = "MIT"
-__version__     = "1.0"
-__email__       = "richard.twiggs@maine.edu"
-__status__      = "Final"
-__module__      = "Controller"
-__mysqluser__   = "api"
-__mysqlpass__   = "W3akPa$$word"
-
 import ast
 from datetime import datetime
 import inspect
@@ -22,7 +12,6 @@ import sys
 import time
 
 def database_connection():
-  # mysql5.7
   db = pymysql.connect(host='localhost',user='api',password='W3akPa$$word',database='controller')
 
   return db
@@ -162,11 +151,6 @@ def job(curl, hostid, chk_id, chk_key):
     d2 = d1.text
     data = ast.literal_eval(d2)
 
-    # Strip off \n and double quotes from any variables.
-#    for d in data:
-#        data[d] = data[d].strip()
-#        data[d] = data[d].replace('"', '')
-
     do_insert = True
   except requests.exceptions.RequestException as e:
     print('could not connect to host: {} for check: {}'.format(hostid, chk_key))
@@ -176,82 +160,46 @@ def job(curl, hostid, chk_id, chk_key):
   if do_insert:
     insert(retval)
 
+## Time time is a character string.
+## Options are: S - Seconds, M - Minutes, H - Hours, D - Days, W - Weeks
+def schedule_query_builder(time_type):
+  return "select i.ip, i.port, ct.chk_key, ct.chk_id, i.id, s.cron \
+                  from inventory i \
+                  join scheduler s on i.id=s.hostid \
+                  join chk_type ct on s.chk_id=ct.chk_id \
+                  where substr(s.cron, -1) = '" + time_type + \
+                  "' order by i.hostname;"
 
-'''This is the main function. It gets things started.'''
 def main():
   db = database_connection()
   curs = db.cursor()
 
   schedule_types = {
-        'seconds',
-        'minutes',
-        'hours',
-        'days',
-        'weeks'
+        'S',
+        'M',
+        'H',
+        'D',
+        'W'
   }
 
-  seconds = "select i.ip, i.port, ct.chk_key, ct.chk_id, i.id, s.cron \
-                  from inventory i \
-                  join scheduler s on i.id=s.hostid \
-                  join chk_type ct on s.chk_id=ct.chk_id \
-                  where substr(s.cron, -1) = 'S' \
-                  order by i.hostname;"
-
-  minutes = "select i.ip, i.port, ct.chk_key, ct.chk_id, i.id, s.cron \
-                  from inventory i \
-                  join scheduler s on i.id=s.hostid \
-                  join chk_type ct on s.chk_id=ct.chk_id \
-                  where substr(s.cron, -1) = 'M' \
-                  order by i.hostname;"
-
-  hours = "select i.ip, i.port, ct.chk_key, ct.chk_id, i.id, s.cron \
-                  from inventory i \
-                  join scheduler s on i.id=s.hostid \
-                  join chk_type ct on s.chk_id=ct.chk_id \
-                  where substr(s.cron, -1) = 'H' \
-                  order by i.hostname;"
-
-  days = "select i.ip, i.port, ct.chk_key, ct.chk_id, i.id, s.cron \
-                  from inventory i \
-                  join scheduler s on i.id=s.hostid \
-                  join chk_type ct on s.chk_id=ct.chk_id \
-                  where substr(s.cron, -1) = 'D' \
-                  order by i.hostname;"
-
-  weeks = "select i.ip, i.port, ct.chk_key, ct.chk_id, i.id, s.cron \
-                  from inventory i \
-                  join scheduler s on i.id=s.hostid \
-                  join chk_type ct on s.chk_id=ct.chk_id \
-                  where substr(s.cron, -1) = 'W' \
-                  order by i.hostname;"
-
-  for stype in schedule_types:
-    if stype == 'seconds':
-      curs.execute(seconds)
-    elif stype == 'minutes':
-      curs.execute(minutes)
-    elif stype == 'hours':
-      curs.execute(hours)
-    elif stype == 'days':
-      curs.execute(days)
-    else: # weeks
-      curs.execute(weeks)
+  for s_type in schedule_types:
+    s = schedule_query_builder(s_type)
+    curs.execute(s)
 
     for ip, port, chk_key, cid, hid, cron in curs.fetchall():
       cron = int(cron[:-1])  # Remove the M tag.
       url = 'http://' + ip + ':' + str(port) + '/' + chk_key
 
-      if stype == 'seconds':
+      if s_type == 'S':
         schedule.every(cron).seconds.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
-      elif stype == 'minutes':
+      elif s_type == 'M':
         schedule.every(cron).minutes.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
-      elif stype == 'hours':
+      elif s_type == 'H':
         schedule.every(cron).hours.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
-      elif stype == 'days':
+      elif s_type == 'D':
         schedule.every(cron).days.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
       else: # weeks
         schedule.every(cron).weeks.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
-
 
   curs.close()
 
