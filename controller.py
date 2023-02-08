@@ -147,10 +147,8 @@ def job(curl, hostid, chk_id, chk_key):
   url = curl
 
   try:
-    d1 = requests.get(url)
-    d2 = d1.text
-    data = ast.literal_eval(d2)
-
+    # The Response [200] object
+    data = ast.literal_eval(requests.get(url).text)
     do_insert = True
   except requests.exceptions.RequestException as e:
     print('could not connect to host: {} for check: {}'.format(hostid, chk_key))
@@ -159,6 +157,7 @@ def job(curl, hostid, chk_id, chk_key):
 
   if do_insert:
     insert(retval)
+
 
 ## Time time is a character string.
 ## Options are: S - Seconds, M - Minutes, H - Hours, D - Days, W - Weeks
@@ -182,14 +181,22 @@ def main():
         'W'
   }
 
+  # Loop through the scheduler table looking for jobs we want to run
+  # Place those jobs on the schedule library stack
   for s_type in schedule_types:
     s = schedule_query_builder(s_type)
     curs.execute(s)
 
     for ip, port, chk_key, cid, hid, cron in curs.fetchall():
       cron = int(cron[:-1])  # Remove the M tag.
+      # Build connection string eg.
+      # http://10.0.0.200:999/osinfo
+      # http://10.0.0.200:999/cpuhardware
+      # http://10.0.0.200:999/diskhardware
+      # http://10.0.0.200:999/diskutilisation
+      # http://10.0.0.200:999/memutilisation
+      # http://10.0.0.200:999/uptime
       url = 'http://' + ip + ':' + str(port) + '/' + chk_key
-
       if s_type == 'S':
         schedule.every(cron).seconds.do(job, curl=url, hostid=hid, chk_id=cid, chk_key=chk_key)
       elif s_type == 'M':
