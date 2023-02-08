@@ -320,7 +320,6 @@ def FourOhFour(self):
 
 
 def database_connection():
-  # mysql5.7
   db = pymysql.connect(host='localhost',user='api',password='W3akPa$$word',database='controller')
 
   return db

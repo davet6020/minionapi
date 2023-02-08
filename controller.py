@@ -13,8 +13,8 @@ import time
 
 def database_connection():
   db = pymysql.connect(host='localhost',user='api',password='W3akPa$$word',database='controller')
-
   return db
+
 
 def insert(writeval):
   data = {}
@@ -22,10 +22,12 @@ def insert(writeval):
 
   db = database_connection()
   curs = db.cursor()
-  
+
+  # Out put the result of the chk_ job to the console
   print(writeval)
 
   # This should really be a better way but it works
+  # It pieces together the results and inserts them into the appropriate table/columns
   for key in writeval:
     now = datetime.now()
     date_recorded = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -124,7 +126,7 @@ def insert(writeval):
       data = (hostid, chk_id, platform, linux, hostname, ip, date_recorded)
       q = ['insert into', table, '(hostid, chk_id, platform, os, hostname, ip, date_recorded) values(%s, %s, %s, %s, %s, %s, %s)']
       
-  # Build the final insert sql
+  # Build the final insert sql by converting the list into a single string
   sql = ' '.join(q)
 
   try:
